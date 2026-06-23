@@ -1,0 +1,2933 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta name="app-version" content="37">
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Foodsoft Eğitim Programı</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #eefaff;
+      --bg-soft: #ffffff;
+      --surface: rgba(255,255,255,.84);
+      --surface-strong: #ffffff;
+      --text: #111820;
+      --muted: #52606b;
+      --line: rgba(35, 160, 205, .22);
+      --accent: #31b7e6;
+      --accent-2: #168fc0;
+      --accent-dark: #0b5f83;
+      --accent-soft: rgba(49,183,230,.13);
+      --shadow: 0 22px 58px rgba(19, 118, 158, .16);
+      --button-text: #ffffff;
+      --doc-bg: #ffffff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #07141a;
+        --bg-soft: #0e222b;
+        --surface: rgba(14,34,43,.86);
+        --surface-strong: #122b36;
+        --text: #f4fbff;
+        --muted: #b8cbd3;
+        --line: rgba(120,216,248,.20);
+        --accent: #45c6f0;
+        --accent-2: #1a9dcc;
+        --accent-dark: #0a6c93;
+        --accent-soft: rgba(69,198,240,.16);
+        --shadow: 0 24px 64px rgba(0,0,0,.42);
+        --doc-bg: #ffffff;
+      }
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(49,183,230,.13), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(49,183,230,.09), transparent 35%),
+        linear-gradient(135deg, var(--bg), var(--bg-soft));
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    body { padding: 14px; }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("assets/background-logo.png?v=34");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: min(62vw, 430px);
+      opacity: .075;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(49,183,230,.15), transparent 28%),
+        radial-gradient(circle at 88% 92%, rgba(22,143,192,.13), transparent 32%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app, .drawer, .overlay, .fullscreen-viewer {
+      position: relative;
+    }
+
+    .app, .drawer, .fullscreen-viewer {
+      z-index: 1;
+    }
+
+    body.fullscreen-locked { overflow: hidden; padding: 0; }
+
+    .app { width: min(1500px, 100%); margin: 0 auto; }
+
+    .auth-locked {
+      padding: 0;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    body.auth-locked .app,
+    body.auth-locked .drawer,
+    body.auth-locked .overlay {
+      display: none !important;
+    }
+
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: grid;
+      place-items: center;
+      padding: max(22px, env(safe-area-inset-top)) 18px max(22px, env(safe-area-inset-bottom));
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 16% 12%, rgba(49,183,230,.24), transparent 28%),
+        radial-gradient(circle at 86% 88%, rgba(22,143,192,.20), transparent 34%),
+        linear-gradient(135deg, #eefaff 0%, #ffffff 45%, #eaf9ff 100%);
+      color: #101922;
+    }
+
+    .auth-screen[hidden] {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    .auth-screen::before {
+      content: "";
+      position: absolute;
+      inset: -18%;
+      background-image: url("assets/temas-white-transparent.png?v=1");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: min(128vw, 760px);
+      opacity: .18;
+      filter: drop-shadow(0 0 26px rgba(69,198,240,.22)) drop-shadow(0 0 68px rgba(49,183,230,.18));
+      pointer-events: none;
+    }
+
+    .auth-screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgba(69,198,240,.18) 0%, rgba(69,198,240,.10) 18%, rgba(69,198,240,.04) 32%, rgba(69,198,240,0) 58%),
+        linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.04)),
+        radial-gradient(circle at center, transparent 0%, rgba(238,250,255,.50) 78%);
+      pointer-events: none;
+    }
+
+    .auth-card {
+      position: relative;
+      z-index: 1;
+      width: min(420px, 100%);
+      border-radius: 34px;
+      padding: 28px 24px 24px;
+      border: 1px solid rgba(49,183,230,.20);
+      background: rgba(255,255,255,.48);
+      box-shadow: 0 28px 76px rgba(10,95,131,.16), inset 0 1px 0 rgba(255,255,255,.52);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow: hidden;
+    }
+
+    .auth-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(69,198,240,.20), transparent 46%),
+        linear-gradient(135deg, rgba(255,255,255,.52), rgba(255,255,255,.08));
+      pointer-events: none;
+    }
+
+    .auth-card > * { position: relative; z-index: 1; }
+
+    .auth-logo-chip {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 14px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      background: rgb(54,195,248);
+      box-shadow: 0 18px 44px rgba(19,118,158,.20);
+      border: 0;
+      overflow: hidden;
+    }
+
+    .auth-logo-chip img {
+      width: 40px;
+      height: 58px;
+      object-fit: contain;
+      display: block;
+      filter: none;
+    }
+
+    .auth-title {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(24px, 7vw, 34px);
+      letter-spacing: -.9px;
+      line-height: 1.03;
+      font-weight: 950;
+      color: #0f2631;
+    }
+
+    .auth-subtitle {
+      margin: 10px auto 24px;
+      max-width: 300px;
+      text-align: center;
+      color: rgba(15,38,49,.70);
+      line-height: 1.45;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .auth-field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .auth-field label {
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(15,38,49,.70);
+      padding-left: 4px;
+      letter-spacing: .1px;
+    }
+
+    .auth-input-wrap {
+      height: 54px;
+      border-radius: 18px;
+      border: 1px solid rgba(49,183,230,.22);
+      background: rgba(255,255,255,.72);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.64);
+      transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+
+    .auth-input-wrap:focus-within {
+      border-color: rgba(49,183,230,.72);
+      box-shadow: 0 0 0 5px rgba(49,183,230,.12), inset 0 1px 0 rgba(255,255,255,.68);
+      transform: translateY(-1px);
+    }
+
+    .auth-icon {
+      color: #168fc0;
+      font-size: 18px;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .auth-input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #10222d;
+      font: 800 15px/1 Arial, Helvetica, sans-serif;
+    }
+
+    .auth-input::placeholder { color: rgba(16,34,45,.42); font-weight: 750; }
+
+    .auth-eye {
+      border: 0;
+      background: transparent;
+      color: rgba(22,143,192,.82);
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 17px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .auth-eye:active { transform: scale(.96); }
+
+    .auth-submit {
+      width: 100%;
+      height: 56px;
+      margin-top: 8px;
+      border: 0;
+      border-radius: 19px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 950;
+      font-size: 16px;
+      letter-spacing: -.2px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,.24), transparent 42%),
+        linear-gradient(135deg, #31b7e6, #168fc0);
+      box-shadow: 0 18px 42px rgba(19,118,158,.26);
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }
+
+    .auth-submit:active { transform: scale(.985); }
+    .auth-submit:hover { filter: brightness(1.02); box-shadow: 0 22px 52px rgba(19,118,158,.30); }
+
+    .auth-error {
+      min-height: 20px;
+      margin: 12px 0 0;
+      text-align: center;
+      color: #c0392b;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .auth-footnote {
+      margin: 10px 0 0;
+      text-align: center;
+      color: rgba(15,38,49,.52);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .auth-screen {
+        background:
+          radial-gradient(circle at 18% 10%, rgba(69,198,240,.20), transparent 30%),
+          radial-gradient(circle at 84% 88%, rgba(26,157,204,.18), transparent 34%),
+          linear-gradient(135deg, #061017 0%, #0b1b23 48%, #07141a 100%);
+        color: #f5fbff;
+      }
+
+      .auth-screen::before {
+        opacity: .13;
+        filter: drop-shadow(0 0 32px rgba(69,198,240,.24)) drop-shadow(0 0 88px rgba(69,198,240,.14));
+      }
+
+      .auth-screen::after {
+        background:
+          radial-gradient(circle at center, rgba(69,198,240,.14) 0%, rgba(69,198,240,.08) 18%, rgba(69,198,240,0) 56%),
+          linear-gradient(180deg, rgba(255,255,255,.035), rgba(0,0,0,.06)),
+          radial-gradient(circle at center, transparent 0%, rgba(7,20,26,.70) 80%);
+      }
+
+      .auth-card {
+        border-color: rgba(120,216,248,.22);
+        background: rgba(10,26,34,.50);
+        box-shadow: 0 30px 82px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.08);
+      }
+
+      .auth-card::before {
+        background:
+          radial-gradient(circle at 50% 0%, rgba(69,198,240,.16), transparent 48%),
+          linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      }
+
+      .auth-title { color: #f5fbff; }
+      .auth-subtitle { color: rgba(245,251,255,.68); }
+      .auth-field label { color: rgba(245,251,255,.68); }
+      .auth-input-wrap {
+        border-color: rgba(120,216,248,.20);
+        background: rgba(255,255,255,.07);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+      }
+      .auth-input { color: #f6fcff; }
+      .auth-input::placeholder { color: rgba(246,252,255,.40); }
+      .auth-icon, .auth-eye { color: #45c6f0; }
+      .auth-error { color: #ff8f84; }
+      .auth-footnote { color: rgba(245,251,255,.44); }
+    }
+
+    @media (max-width: 520px) {
+      .auth-card {
+        border-radius: 30px;
+        padding: 24px 18px 20px;
+      }
+
+      .auth-screen::before {
+        background-size: min(150vw, 620px);
+      }
+    }
+
+    .topbar {
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at center, rgba(49,183,230,.42) 0%, rgba(49,183,230,.22) 36%, rgba(255,255,255,.92) 72%),
+        linear-gradient(135deg, rgba(255,255,255,.96), rgba(236,251,255,.92));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 10px;
+      z-index: 30;
+      overflow: hidden;
+    }
+
+    .hamburger, .close-btn, .back-home, .fullscreen-btn, .nav-btn {
+      font-family: inherit;
+    }
+
+    .hamburger {
+      min-width: 108px;
+      height: 38px;
+      border: 1px solid rgba(49,183,230,.26);
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      box-shadow: 0 10px 24px rgba(19,118,158,.16);
+      flex: 0 0 auto;
+      padding: 0 11px;
+      font-weight: 900;
+      font-size: 14px;
+      line-height: 1;
+      margin-top: 5px;
+    }
+
+    .hamburger-book {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      line-height: 1;
+      background: rgba(255,255,255,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.24);
+      flex: 0 0 auto;
+    }
+
+    .hamburger-label {
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: -.2px;
+      white-space: nowrap;
+    }
+
+    .brand {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 74px;
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 1;
+      border-radius: 22px;
+      background: rgb(54,195,248);
+      box-shadow: 0 14px 32px rgba(19,118,158,.16);
+      overflow: hidden;
+    }
+
+    .top-temas-logo {
+      height: 50px;
+      width: 34px;
+      object-fit: contain;
+      display: block;
+      filter: none;
+    }
+
+    .hamburger,
+    .topbar-actions {
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-title,
+    .brand-title h1,
+    .brand-title p {
+      display: none;
+      margin: 0;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .notification-wrap {
+      position: relative;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notification-bell {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      border: 1px solid rgba(49,183,230,.24);
+      background: rgba(255,255,255,.90);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(19,118,158,.12);
+      font-size: 22px;
+      line-height: 1;
+      position: relative;
+      transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+    }
+
+    .notification-bell svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+      color: currentColor;
+      fill: none;
+      stroke: currentColor;
+    }
+
+    .notification-bell::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      border: 2px solid rgba(49,183,230,.0);
+      pointer-events: none;
+    }
+
+    .notification-bell.has-notification {
+      animation: bellShake 1.25s ease-in-out infinite;
+      background: rgba(242,252,255,.98);
+      box-shadow: 0 14px 30px rgba(19,118,158,.18), 0 0 0 8px rgba(49,183,230,.08);
+    }
+
+    .notification-bell.has-notification::after {
+      animation: bellGlow 1.45s ease-in-out infinite;
+    }
+
+    .notification-popover {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      width: min(310px, calc(100vw - 28px));
+      border-radius: 20px;
+      border: 1px solid rgba(49,183,230,.24);
+      background: rgba(255,255,255,.96);
+      color: var(--text);
+      box-shadow: 0 18px 42px rgba(19,118,158,.18);
+      padding: 14px;
+      z-index: 80;
+      backdrop-filter: blur(12px);
+    }
+
+    .notification-popover[hidden] {
+      display: none !important;
+    }
+
+    .notification-popover::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      right: 18px;
+      width: 14px;
+      height: 14px;
+      transform: rotate(45deg);
+      background: rgba(255,255,255,.96);
+      border-left: 1px solid rgba(49,183,230,.24);
+      border-top: 1px solid rgba(49,183,230,.24);
+    }
+
+    .notification-popover strong {
+      display: block;
+      color: var(--accent-dark);
+      font-size: 15px;
+      margin-bottom: 7px;
+    }
+
+    .notification-popover p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .notification-dismiss {
+      width: 100%;
+      min-height: 38px;
+      margin-top: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(49,183,230,.26);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    @keyframes bellShake {
+      0%, 100% { transform: rotate(0deg); }
+      10% { transform: rotate(-9deg); }
+      20% { transform: rotate(8deg); }
+      30% { transform: rotate(-7deg); }
+      40% { transform: rotate(6deg); }
+      50% { transform: rotate(0deg); }
+    }
+
+    @keyframes bellGlow {
+      0%, 100% {
+        border-color: rgba(49,183,230,.0);
+        box-shadow: 0 0 0 0 rgba(49,183,230,.0);
+      }
+      50% {
+        border-color: rgba(49,183,230,.34);
+        box-shadow: 0 0 0 9px rgba(49,183,230,.10);
+      }
+    }
+
+    .home {
+      min-height: calc(100vh - 154px);
+      display: flex;
+      justify-content: center;
+      padding: 28px 0 32px;
+    }
+
+    .home-shell {
+      width: min(620px, 100%);
+    }
+
+    .welcome-copy {
+      text-align: left;
+      padding: 0 10px 18px;
+    }
+
+    .welcome-copy h2 {
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(26px, 4.2vw, 40px);
+      line-height: 1.1;
+      letter-spacing: -.5px;
+    }
+
+    .welcome-copy p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: clamp(16px, 2.2vw, 18px);
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .hero {
+      width: min(560px, 100%);
+      margin: 0 auto;
+      text-align: center;
+      border: 0;
+      border-radius: 34px;
+      padding: 32px 20px 12px;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 20px 18px 10px;
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at center, rgba(49,183,230,.16) 0, rgba(49,183,230,.10) 34%, rgba(49,183,230,.05) 52%, rgba(49,183,230,0) 72%);
+      filter: blur(1px);
+      animation: heroGlow 2.8s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    .hero-badge {
+      position: relative;
+      z-index: 2;
+      width: 68px;
+      height: 68px;
+      margin: 0 auto -28px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(19,118,158,.20);
+      font-size: 28px;
+    }
+
+    .hero-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,.68);
+      border: 1px solid rgba(49,183,230,.16);
+      border-radius: 28px;
+      padding: 52px 26px 24px;
+      box-shadow: 0 18px 40px rgba(19,118,158,.11);
+      overflow: visible;
+      backdrop-filter: blur(2px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      border-radius: 34px;
+      background: radial-gradient(circle at center, rgba(49,183,230,.20), rgba(49,183,230,.08) 42%, rgba(49,183,230,0) 70%);
+      z-index: -1;
+      animation: heroCardLight 1.9s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes heroCardLight {
+      0%, 100% { opacity: .40; transform: scale(.985); }
+      50% { opacity: 1; transform: scale(1.025); }
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(20px, 3.4vw, 28px);
+      letter-spacing: -.35px;
+      text-transform: none;
+      color: var(--accent-dark);
+      line-height: 1.35;
+      font-weight: 900;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 320px;
+      color: var(--accent-dark);
+      font-size: clamp(15px, 2vw, 18px);
+      line-height: 1.45;
+      font-weight: 800;
+    }
+
+    .hero-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .hero-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(49,183,230,.24);
+    }
+
+    .hero-dot.active {
+      background: var(--accent-2);
+    }
+
+    @keyframes heroGlow {
+      0%, 100% {
+        transform: scale(.98);
+        opacity: .78;
+      }
+      50% {
+        transform: scale(1.02);
+        opacity: 1;
+      }
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(19,13,14,.38);
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: .22s ease;
+    }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: min(390px, 88vw);
+      height: 100vh;
+      background: linear-gradient(180deg, var(--surface-strong), var(--bg-soft));
+      z-index: 50;
+      transform: translateX(-105%);
+      transition: transform .24s ease;
+      box-shadow: 20px 0 60px rgba(0,0,0,.28);
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .drawer-head strong { font-size: 18px; letter-spacing: .3px; color: var(--text); }
+
+    .close-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface);
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .menu-note { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+    .menu-list { display: grid; gap: 12px; }
+
+    .menu-item {
+      width: 100%;
+      text-align: left;
+      color: var(--text);
+      border: 1px solid rgba(49,183,230,.20);
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(255,255,255,.94), rgba(235,250,255,.78));
+      padding: 13px 14px;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow: 0 10px 24px rgba(19,118,158,.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(49,183,230,.13), transparent 45%);
+      pointer-events: none;
+    }
+    .menu-item:hover { transform: translateY(-1px); border-color: rgba(49,183,230,.35); box-shadow: 0 14px 30px rgba(19,118,158,.13); }
+    .menu-item.active { background: linear-gradient(135deg, rgba(49,183,230,.16), rgba(255,255,255,.96)); border-color: rgba(49,183,230,.45); }
+    .menu-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-size: 18px;
+      box-shadow: 0 10px 20px rgba(19,118,158,.15);
+      position: relative;
+      z-index: 1;
+    }
+    .menu-copy { min-width: 0; position: relative; z-index: 1; }
+    .menu-item .name { display: block; font-weight: 950; font-size: 15px; margin-bottom: 0; color: var(--accent-dark); letter-spacing: -.2px; line-height: 1.25; }
+    .menu-count {
+      position: relative;
+      z-index: 1;
+      min-width: 52px;
+      height: 30px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-dark);
+      background: rgba(49,183,230,.12);
+      border: 1px solid rgba(49,183,230,.18);
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+
+    .viewer { display: none; margin-top: 14px; }
+    .viewer.open { display: block; }
+
+    .viewer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: 0 14px 32px rgba(19,118,158,.10);
+    }
+    .viewer-title { min-width: 0; }
+    .viewer-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .viewer-head h2 { margin: 0; font-size: clamp(17px, 1.8vw, 24px); color: var(--text); }
+    .viewer-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+
+    .viewer-box { overflow: hidden; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 10px; }
+
+    .stage {
+      min-height: calc(100vh - 250px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      background: var(--doc-bg);
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(49,183,230,.12);
+    }
+
+    .page-img {
+      width: 100%;
+      height: calc(100vh - 270px);
+      display: block;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 14px 38px rgba(19,118,158,.14);
+      transition: opacity .16s ease, transform .16s ease;
+      user-select: none;
+      z-index: 1;
+    }
+    .page-img.changing { opacity: 0; transform: scale(.987); }
+
+    .tap-zone {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      z-index: 3;
+      cursor: pointer;
+    }
+    .tap-zone.left { left: 0; }
+    .tap-zone.right { right: 0; }
+    .tap-zone:active { background: rgba(49,183,230,.045); }
+
+    .controls { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); flex-wrap: wrap; }
+
+    .nav-btn, .fullscreen-btn {
+      border: 1px solid rgba(49,183,230,.26);
+      color: var(--button-text);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      min-height: 44px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(49,183,230,.18);
+      transition: transform .12s ease, filter .12s ease, opacity .12s ease;
+      white-space: nowrap;
+    }
+    .nav-btn { min-width: 128px; height: 46px; }
+    .fullscreen-btn { padding: 0 16px; }
+    .nav-btn:hover, .fullscreen-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .nav-btn:active, .fullscreen-btn:active { transform: translateY(1px) scale(.99); }
+    .nav-btn:disabled { opacity: .42; cursor: not-allowed; transform: none; filter: none; }
+
+    .page-pill { min-width: 120px; height: 46px; padding: 0 20px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: var(--surface-strong); color: var(--accent); border: 1px solid var(--line); font-size: 16px; font-weight: 900; }
+
+    .back-home { border: 1px solid var(--line); color: var(--accent); background: var(--surface-strong); height: 44px; border-radius: 999px; padding: 0 16px; font-weight: 900; cursor: pointer; }
+
+    .fullscreen-viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: var(--doc-bg);
+      overflow: hidden;
+    }
+    .fullscreen-viewer.open { display: flex; }
+
+    .fullscreen-img {
+      display: block;
+      background: #fff;
+      object-fit: contain;
+      user-select: none;
+      max-width: 100vw;
+      max-height: 100vh;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .fullscreen-close {
+      position: fixed;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      right: max(12px, env(safe-area-inset-right));
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid rgba(49,183,230,.18);
+      background: rgba(255,255,255,.92);
+      color: var(--accent);
+      font-size: 28px;
+      font-weight: 900;
+      z-index: 10004;
+      cursor: pointer;
+      box-shadow: 0 10px 26px rgba(0,0,0,.18);
+      line-height: 1;
+    }
+
+    .fullscreen-page-pill {
+      position: fixed;
+      left: 50%;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      min-width: 78px;
+      height: 34px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: rgba(255,255,255,.88);
+      color: var(--accent);
+      border: 1px solid rgba(49,183,230,.22);
+      font-size: 13px;
+      font-weight: 900;
+      z-index: 10003;
+      box-shadow: 0 8px 20px rgba(0,0,0,.14);
+    }
+
+    .fullscreen-tap-zone { position: fixed; top: 0; bottom: 0; width: 50%; z-index: 10002; cursor: pointer; }
+    .fullscreen-tap-zone.left { left: 0; }
+    .fullscreen-tap-zone.right { right: 0; }
+    .fullscreen-tap-zone:active { background: rgba(49,183,230,.035); }
+
+    @media (orientation: portrait) {
+      .fullscreen-img.rotate-mobile {
+        width: 100vh;
+        height: 100vw;
+        max-width: none;
+        max-height: none;
+        transform: rotate(90deg);
+        transform-origin: center center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 8px; }
+      .topbar { min-height: 74px; padding: 10px; border-radius: 18px; top: 6px; }
+      .brand { width: 58px; height: 58px; border-radius: 18px; }
+      .top-temas-logo { width: 28px; height: 42px; }
+      .top-temas-logo { height: 42px; width: 28px; }
+      .hamburger { min-width: 98px; height: 36px; border-radius: 999px; padding: 0 9px; margin-top: 4px; }
+      .hamburger-label { font-size: 12px; }
+      .hamburger-book { width: 19px; height: 19px; font-size: 11px; }
+      .topbar-actions { gap: 7px; }
+      .notification-bell { width: 46px; height: 46px; font-size: 20px; }
+      .notification-popover { top: calc(100% + 10px); right: -2px; }
+      .home { min-height: calc(100vh - 148px); padding: 22px 0 24px; }
+      .home-shell { width: 100%; }
+      .welcome-copy { padding: 0 4px 14px; }
+      .welcome-copy h2 { font-size: 26px; }
+      .welcome-copy p { margin-top: 8px; font-size: 15px; }
+      .hero { border-radius: 22px; padding: 28px 10px 8px; }
+      .hero-badge { width: 60px; height: 60px; margin-bottom: -24px; font-size: 24px; }
+      .hero-card { border-radius: 24px; padding: 46px 18px 20px; }
+      .viewer-head { border-radius: 16px; padding: 12px; align-items: flex-start; }
+      .viewer-actions { flex-direction: column; align-items: stretch; gap: 7px; }
+      .viewer-head p { display: none; }
+      .fullscreen-btn, .back-home { height: 39px; min-height: 39px; padding: 0 12px; font-size: 12px; }
+      .viewer-box { border-radius: 18px; padding: 6px; }
+      .stage { min-height: calc(100vh - 222px); border-radius: 14px; }
+      .page-img { height: calc(100vh - 237px); border-radius: 9px; }
+      .controls { gap: 7px; padding: 8px; margin-top: 8px; border-radius: 15px; }
+      .nav-btn { min-width: 92px; height: 42px; font-size: 13px; }
+      .page-pill { min-width: 76px; height: 42px; padding: 0 12px; font-size: 14px; }
+    }
+
+    @media (max-width: 390px) {
+      .hamburger { min-width: 92px; height: 34px; padding: 0 8px; }
+      .hamburger-label { font-size: 11px; }
+      .hamburger-book { width: 18px; height: 18px; font-size: 10px; }
+      .notification-bell { width: 42px; height: 42px; font-size: 19px; }
+      .brand { width: 54px; height: 54px; border-radius: 16px; }
+      .top-temas-logo { height: 38px; width: 26px; }
+      .welcome-copy h2 { font-size: 24px; }
+      .welcome-copy p { font-size: 14px; }
+    }
+  
+    /* V8 sağ üst gerçek Temaş logo düzeltmesi */
+    .topbar {
+      display: grid !important;
+      grid-template-columns: auto minmax(0, 1fr) auto !important;
+      align-items: center !important;
+    }
+
+    .brand {
+      min-width: 0 !important;
+      justify-content: center !important;
+      display: flex !important;
+      opacity: 1 !important;
+    }
+
+    .right-logo-box {
+      width: 78px !important;
+      height: 60px !important;
+      border-radius: 16px !important;
+      background: rgba(255,255,255,.96) !important;
+      border: 1px solid rgba(49,183,230,.28) !important;
+      padding: 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex: 0 0 auto !important;
+      position: relative !important;
+      z-index: 99 !important;
+      box-shadow: 0 12px 26px rgba(0,0,0,.14) !important;
+      overflow: hidden !important;
+    }
+
+    .right-logo {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
+    @media (max-width: 768px) {
+      .right-logo-box {
+        width: 56px !important;
+        height: 46px !important;
+        border-radius: 13px !important;
+        padding: 4px !important;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .right-logo-box {
+        width: 50px !important;
+        height: 42px !important;
+        border-radius: 12px !important;
+        padding: 4px !important;
+      }
+    }
+/* V9 belge görüntüleme düzeltmesi: görünmez sağ/sol dokunma alanları */
+    .stage {
+      background: #ffffff !important;
+      overflow: hidden !important;
+      isolation: isolate !important;
+    }
+
+    .page-img {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+      position: relative !important;
+      z-index: 1 !important;
+      background: #ffffff !important;
+      transform: none !important;
+      transition: none !important;
+      pointer-events: none !important;
+    }
+
+    .page-img.changing {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .tap-zone,
+    .fullscreen-tap-zone {
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      border: 0 !important;
+      outline: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      color: transparent !important;
+      font-size: 0 !important;
+      line-height: 0 !important;
+      opacity: 1 !important;
+    }
+
+    .tap-zone:focus,
+    .tap-zone:active,
+    .tap-zone:hover,
+    .fullscreen-tap-zone:focus,
+    .fullscreen-tap-zone:active,
+    .fullscreen-tap-zone:hover {
+      background: transparent !important;
+      background-color: transparent !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .fullscreen-viewer {
+      background: #ffffff !important;
+      isolation: isolate !important;
+    }
+
+    .fullscreen-img {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+      background: #ffffff !important;
+      pointer-events: none !important;
+      z-index: 10001 !important;
+    }
+
+    .fullscreen-img.changing {
+      opacity: 1 !important;
+    }
+
+    .fullscreen-close,
+    .fullscreen-page-pill {
+      pointer-events: auto !important;
+    }
+
+
+
+    /* V11 yerleşim + sürükleme düzeltmesi */
+    .viewer-actions {
+      align-items: center !important;
+    }
+
+    .viewer-box {
+      position: relative !important;
+      overflow: visible !important;
+      padding: 8px !important;
+    }
+
+    .stage {
+      min-height: calc(100vh - 292px) !important;
+      touch-action: pan-y !important;
+      cursor: grab !important;
+    }
+
+    .stage:active { cursor: grabbing !important; }
+
+    .page-img {
+      height: calc(100vh - 312px) !important;
+    }
+
+    .stage-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin: 0 0 8px 0;
+      padding: 0 4px;
+    }
+
+    .stage-fullscreen-btn {
+      position: static;
+      z-index: 7;
+      height: 30px;
+      padding: 0 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(49,183,230,.24);
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      color: var(--accent-dark);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(19,118,158,.12);
+      backdrop-filter: blur(10px);
+      opacity: .84;
+      transition: opacity .12s ease, transform .12s ease, background .12s ease;
+    }
+
+    .stage-fullscreen-btn:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.92);
+    }
+
+    .stage-fullscreen-icon {
+      width: 15px;
+      height: 15px;
+      position: relative;
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .stage-fullscreen-icon::before,
+    .stage-fullscreen-icon::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 2px solid currentColor;
+      border-radius: 3px;
+    }
+
+    .stage-fullscreen-icon::before {
+      clip-path: polygon(0 0, 45% 0, 45% 18%, 18% 18%, 18% 45%, 0 45%, 0 0, 55% 0, 100% 0, 100% 45%, 82% 45%, 82% 18%, 55% 18%);
+    }
+
+    .stage-fullscreen-icon::after {
+      clip-path: polygon(0 55%, 18% 55%, 18% 82%, 45% 82%, 45% 100%, 0 100%, 0 55%, 55% 82%, 82% 82%, 82% 55%, 100% 55%, 100% 100%, 55% 100%);
+    }
+
+    .fullscreen-btn {
+      display: none !important;
+    }
+
+    .tap-zone,
+    .fullscreen-tap-zone {
+      display: none !important;
+      pointer-events: none !important;
+    }
+
+    .controls {
+      margin-top: 8px !important;
+      padding: 4px 2px !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      display: grid !important;
+      grid-template-columns: 1fr auto 1fr !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    .nav-btn {
+      min-width: 0 !important;
+      width: min(150px, 100%) !important;
+      height: 38px !important;
+      min-height: 38px !important;
+      padding: 0 12px !important;
+      justify-self: start !important;
+      color: var(--accent-dark) !important;
+      background: rgba(255,255,255,.48) !important;
+      border: 1px solid rgba(49,183,230,.22) !important;
+      box-shadow: 0 8px 18px rgba(19,118,158,.08) !important;
+      opacity: .68 !important;
+    }
+
+    #nextBtn {
+      justify-self: end !important;
+    }
+
+    .nav-btn:hover {
+      opacity: .9 !important;
+      background: rgba(255,255,255,.72) !important;
+    }
+
+    .nav-btn:disabled {
+      opacity: .28 !important;
+      cursor: not-allowed !important;
+    }
+
+    .page-pill {
+      min-width: 72px !important;
+      height: 34px !important;
+      padding: 0 12px !important;
+      font-size: 13px !important;
+      background: rgba(255,255,255,.62) !important;
+      opacity: .72 !important;
+      box-shadow: 0 8px 18px rgba(19,118,158,.06) !important;
+    }
+
+    .fullscreen-viewer {
+      touch-action: pan-y !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
+    }
+
+    .fullscreen-img,
+    .page-img {
+      -webkit-user-drag: none !important;
+      user-select: none !important;
+      touch-action: pan-y !important;
+    }
+
+    .fullscreen-img {
+      transition: transform .16s ease, opacity .16s ease !important;
+      will-change: transform, opacity;
+    }
+
+    .fullscreen-img.swiping {
+      transition: none !important;
+    }
+
+    .fullscreen-nav {
+      position: fixed;
+      left: max(12px, env(safe-area-inset-left));
+      right: max(12px, env(safe-area-inset-right));
+      bottom: max(12px, env(safe-area-inset-bottom));
+      z-index: 10004;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .fullscreen-nav-btn {
+      height: 38px;
+      min-width: 0;
+      width: min(145px, 100%);
+      border-radius: 999px;
+      border: 1px solid rgba(49,183,230,.20);
+      background: rgba(255,255,255,.74);
+      color: var(--accent-dark);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 900;
+      opacity: .7;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,.12);
+      backdrop-filter: blur(10px);
+    }
+
+    .fullscreen-nav-btn:hover { opacity: .95; }
+    .fullscreen-nav-btn:disabled { opacity: .28; cursor: not-allowed; }
+    #fullscreenNextBtn { justify-self: end; }
+    #fullscreenPrevBtn { justify-self: start; }
+
+    .fullscreen-page-pill {
+      position: static !important;
+      transform: none !important;
+      min-width: 72px !important;
+      height: 34px !important;
+      background: rgba(255,255,255,.72) !important;
+      opacity: .8 !important;
+    }
+
+    .fullscreen-viewer.open .fullscreen-nav {
+      display: none !important;
+    }
+
+    .swipe-hint {
+      position: fixed;
+      inset: 0;
+      z-index: 10006;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      background: transparent;
+      backdrop-filter: none;
+    }
+
+    .swipe-hint.show {
+      display: flex;
+      animation: swipeHintFade 3.3s ease forwards;
+    }
+
+    .swipe-hint.fullscreen-mode {
+      z-index: 10007;
+    }
+
+    @media (orientation: portrait) {
+      .swipe-hint.fullscreen-mode .swipe-hint-card {
+        transform: rotate(90deg);
+        transform-origin: center center;
+        width: min(78vh, 560px);
+      }
+    }
+
+    .swipe-hint-card {
+      width: min(90vw, 620px);
+      min-height: 0;
+      padding: 28px 34px 24px;
+      border-radius: 32px;
+      border: 2px solid rgba(255, 255, 255, .20);
+      background:
+        radial-gradient(circle at 24% 38%, rgba(44, 122, 255, .18), transparent 26%),
+        radial-gradient(circle at 76% 38%, rgba(44, 122, 255, .18), transparent 26%),
+        linear-gradient(180deg, rgba(22, 28, 36, .86), rgba(18, 22, 29, .82));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 10px 26px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      text-align: center;
+    }
+
+    .swipe-hint-icons {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .swipe-arrow {
+      height: 22px;
+      position: relative;
+      opacity: .98;
+      filter: drop-shadow(0 0 10px rgba(80, 145, 255, .90));
+    }
+
+    .swipe-arrow::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 86%;
+      height: 6px;
+      transform: translateY(-50%);
+      border-radius: 999px;
+      box-shadow: 0 0 18px rgba(80, 145, 255, .82);
+    }
+
+    .swipe-arrow::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 26px;
+      height: 26px;
+      border-top: 7px solid #fff;
+      border-right: 7px solid #fff;
+      filter: drop-shadow(0 0 8px rgba(80, 145, 255, .90));
+    }
+
+    .swipe-arrow.left::before {
+      right: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,.96), rgba(76, 137, 255, .10));
+    }
+
+    .swipe-arrow.left::after {
+      left: 0;
+      transform: translateY(-50%) rotate(-135deg);
+    }
+
+    .swipe-arrow.right::before {
+      left: 0;
+      background: linear-gradient(90deg, rgba(76, 137, 255, .10), rgba(255,255,255,.96));
+    }
+
+    .swipe-arrow.right::after {
+      right: 0;
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    .swipe-hand {
+      width: 78px;
+      height: 78px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.20));
+      overflow: visible;
+    }
+
+    .swipe-hand img {
+      width: 78px;
+      height: 78px;
+      display: block;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+
+    .swipe-hand {
+      animation: handSwipeMove 1.35s ease-in-out infinite;
+    }
+
+    .swipe-arrow.left {
+      animation: arrowPulseLeft 1.35s ease-in-out infinite;
+      transform-origin: right center;
+    }
+
+    .swipe-arrow.right {
+      animation: arrowPulseRight 1.35s ease-in-out infinite;
+      transform-origin: left center;
+    }
+
+    .swipe-hint-text {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(18px, 3.6vw, 27px);
+      line-height: 1.22;
+      font-weight: 600;
+      letter-spacing: -.25px;
+      text-shadow: 0 2px 18px rgba(0,0,0,.44);
+    }
+
+    @keyframes swipeHintFade {
+      0% { opacity: 0; transform: scale(.985); }
+      12% { opacity: 1; transform: scale(1); }
+      82% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(.99); }
+    }
+
+    @keyframes handSwipeMove {
+      0% { transform: translateX(0); }
+      18% { transform: translateX(-14px); }
+      36% { transform: translateX(0); }
+      54% { transform: translateX(14px); }
+      72% { transform: translateX(0); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes arrowPulseLeft {
+      0%, 100% { transform: translateX(0); opacity: .82; }
+      18% { transform: translateX(-8px); opacity: 1; }
+      36% { transform: translateX(0); opacity: .88; }
+    }
+
+    @keyframes arrowPulseRight {
+      0%, 100% { transform: translateX(0); opacity: .82; }
+      54% { transform: translateX(8px); opacity: 1; }
+      72% { transform: translateX(0); opacity: .88; }
+    }
+
+    @media (max-width: 768px) and (orientation: landscape) {
+      .swipe-hint-card {
+        width: min(90vw, 640px);
+        min-height: 0;
+        padding: 22px 26px 18px;
+        border-radius: 30px;
+      }
+
+      .swipe-hint-icons {
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .swipe-hand,
+      .swipe-hand img {
+        width: 72px;
+        height: 72px;
+      }
+
+      .swipe-hint-text {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .viewer-head {
+        align-items: center !important;
+      }
+
+      .viewer-actions {
+        flex-direction: row !important;
+        align-items: center !important;
+      }
+
+      .stage {
+        min-height: calc(100vh - 258px) !important;
+      }
+
+      .page-img {
+        height: calc(100vh - 278px) !important;
+      }
+
+      .stage-toolbar {
+        margin-bottom: 6px;
+        padding: 0 2px;
+      }
+
+      .stage-fullscreen-btn {
+        height: 31px;
+        padding: 0 8px;
+        font-size: 10px;
+        gap: 5px;
+      }
+
+      .stage-fullscreen-icon {
+        width: 13px;
+        height: 13px;
+      }
+
+      .controls {
+        margin-top: 6px !important;
+      }
+
+      .nav-btn {
+        height: 34px !important;
+        min-height: 34px !important;
+        font-size: 12px !important;
+      }
+
+      .page-pill {
+        height: 31px !important;
+        min-width: 62px !important;
+        font-size: 12px !important;
+      }
+    }
+
+
+
+    /* V36 PowerPoint tipi tam ekran + sallanma azaltma */
+    html, body {
+      overscroll-behavior: none !important;
+    }
+
+    body.fullscreen-locked,
+    body.fullscreen-locked .app,
+    body.fullscreen-locked .topbar,
+    body.fullscreen-locked .drawer,
+    body.fullscreen-locked .overlay {
+      -webkit-user-select: none !important;
+      user-select: none !important;
+    }
+
+    .fullscreen-viewer,
+    .fullscreen-viewer:fullscreen,
+    .fullscreen-viewer:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      background: #ffffff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden !important;
+      touch-action: none !important;
+      overscroll-behavior: none !important;
+    }
+
+    .fullscreen-viewer.open {
+      display: flex !important;
+    }
+
+    .fullscreen-img {
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      max-height: 100dvh !important;
+      object-fit: contain !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      transition: none !important;
+      will-change: auto !important;
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
+      transform: translateZ(0) !important;
+    }
+
+    .fullscreen-img.swiping,
+    .fullscreen-img.changing {
+      transition: none !important;
+      opacity: 1 !important;
+      transform: translateZ(0) !important;
+    }
+
+    @media (orientation: portrait) {
+      .fullscreen-img.rotate-mobile {
+        width: 100vh !important;
+        width: 100dvh !important;
+        height: 100vw !important;
+        max-width: none !important;
+        max-height: none !important;
+        transform: rotate(90deg) translateZ(0) !important;
+        transform-origin: center center !important;
+      }
+      .fullscreen-img.rotate-mobile.swiping,
+      .fullscreen-img.rotate-mobile.changing {
+        transform: rotate(90deg) translateZ(0) !important;
+      }
+    }
+
+    .fullscreen-close {
+      bottom: max(10px, env(safe-area-inset-bottom)) !important;
+      right: max(10px, env(safe-area-inset-right)) !important;
+      z-index: 10010 !important;
+    }
+
+    .fullscreen-nav,
+    .fullscreen-page-pill {
+      display: none !important;
+    }
+
+
+
+    /* V37: Tam ekranda ilk sürükleme ipucu kaybolmasın */
+    .swipe-hint.fullscreen-mode.show {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 10050 !important;
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: none !important;
+    }
+
+    .swipe-hint.fullscreen-mode.show .swipe-hint-card {
+      visibility: visible !important;
+      opacity: 1 !important;
+      transform-origin: center center !important;
+    }
+
+    @media (display-mode: fullscreen) {
+      body { padding: 0 !important; }
+    }
+
+
+    /* DARK MODE FOODSOFT LOGO KARARMA ENGELİ - sadece logo alanları */
+    .auth-logo-chip,
+    .brand,
+    .right-logo-box,
+    .auth-logo-chip img,
+    .top-temas-logo,
+    .right-logo {
+      filter: none !important;
+      -webkit-filter: none !important;
+      mix-blend-mode: normal !important;
+      opacity: 1 !important;
+      color-scheme: only light !important;
+      forced-color-adjust: none !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      isolation: isolate !important;
+    }
+
+    .auth-logo-chip,
+    .brand {
+      background: rgb(54,195,248) !important;
+      background-color: rgb(54,195,248) !important;
+    }
+
+    .right-logo-box {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .auth-logo-chip,
+      .brand {
+        background: rgb(54,195,248) !important;
+        background-color: rgb(54,195,248) !important;
+      }
+
+      .right-logo-box {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+      }
+
+      .auth-logo-chip img,
+      .top-temas-logo,
+      .right-logo {
+        filter: none !important;
+        -webkit-filter: none !important;
+        mix-blend-mode: normal !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body class="auth-locked home-active">
+  <section class="auth-screen" id="authScreen" aria-label="Foodsoft Eğitim Girişi">
+    <form class="auth-card" id="authForm" autocomplete="on">
+      <div class="auth-logo-chip" aria-hidden="true">
+        <img src="assets/foodsoft-clean.png?v=1" alt="Foodsoft Logo">
+      </div>
+      <h1 class="auth-title">Foodsoft Eğitim Programı</h1>
+      <p class="auth-subtitle">Eğitim içeriklerine erişmek için kullanıcı bilgilerinizi giriniz.</p>
+
+      <div class="auth-field">
+        <label for="authUser">Kullanıcı adı</label>
+        <div class="auth-input-wrap">
+          <span class="auth-icon" aria-hidden="true">👤</span>
+          <input class="auth-input" id="authUser" name="username" type="text" placeholder="Kullanıcı adınızı girin" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="auth-field">
+        <label for="authPass">Şifre</label>
+        <div class="auth-input-wrap">
+          <span class="auth-icon" aria-hidden="true">🔒</span>
+          <input class="auth-input" id="authPass" name="password" type="password" placeholder="Şifrenizi girin" autocomplete="current-password">
+          <button class="auth-eye" id="authTogglePass" type="button" aria-label="Şifreyi göster">👁</button>
+        </div>
+      </div>
+
+      <button class="auth-submit" id="authSubmit" type="submit">Giriş Yap</button>
+      <p class="auth-error" id="authError" aria-live="polite"></p>
+      <p class="auth-footnote">Temaş Catering · Eğitim erişim ekranı</p>
+    </form>
+  </section>
+
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="drawer" id="drawer" aria-label="Eğitim menüsü">
+    <div class="drawer-head">
+      <strong>Eğitim İçerikleri</strong>
+      <button class="close-btn" id="closeMenu" type="button">×</button>
+    </div>
+    <p class="menu-note">Görüntülemek istediğiniz eğitim başlığını seçiniz.</p>
+    <div class="menu-list" id="menuList"></div>
+  </aside>
+
+  <main class="app">
+    <header class="topbar">
+      <button class="hamburger" id="openMenu" type="button" aria-label="Kütüphanem menüsünü aç">
+        <span class="hamburger-book" aria-hidden="true">📖</span>
+        <span class="hamburger-label">Kütüphanem</span>
+      </button>
+
+      <div class="brand" aria-hidden="true">
+        <img class="top-temas-logo" src="assets/foodsoft-clean.png?v=1" alt="Foodsoft Logo">
+      </div>
+
+      <div class="topbar-actions">
+        <div class="notification-wrap">
+          <button class="notification-bell" id="notificationBell" type="button" aria-label="Bildirimler">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <div class="notification-popover" id="notificationPopover" role="dialog" aria-label="Bildirim kutusu" hidden>
+            <strong>Bildirim</strong>
+            <p id="notificationText">Yeni bildirim yok.</p>
+            <button class="notification-dismiss" id="notificationDismiss" type="button">Bildirimi kapat</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="home" id="home">
+      <div class="home-shell">
+        <div class="welcome-copy">
+          <h2>Merhaba, Hoş geldiniz! 👋</h2>
+          <p>Bugün kendinizi geliştirmek için harika bir gün.</p>
+        </div>
+
+        <div class="hero" aria-label="Ana bilgilendirme kartı">
+          <div class="hero-badge" aria-hidden="true">📖</div>
+          <div class="hero-card">
+            <h2>Eğitim içeriklerine<br>ulaşmak için<br>Kütüphanem kısmını<br>kullanabilirsiniz.</h2>
+            <div class="hero-dots" aria-hidden="true">
+              <span class="hero-dot"></span>
+              <span class="hero-dot active"></span>
+              <span class="hero-dot"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="viewer" id="viewer">
+      <div class="viewer-head">
+        <div class="viewer-title">
+          <h2 id="trainingTitle">Eğitim Başlığı</h2>
+          <p id="trainingSubtitle">Eğitim açıklaması</p>
+        </div>
+        <div class="viewer-actions">
+          <button class="fullscreen-btn" id="fullscreenBtn" type="button">Tam Ekran Yap</button>
+          <button class="back-home" id="backHome" type="button">Ana Sayfa</button>
+        </div>
+      </div>
+
+      <div class="viewer-box">
+        <div class="stage-toolbar">
+          <button class="stage-fullscreen-btn" id="stageFullscreenBtn" type="button" aria-label="Tam ekran aç">
+            <span class="stage-fullscreen-icon" aria-hidden="true"></span>
+            <span>Tam Ekran</span>
+          </button>
+        </div>
+
+        <div class="stage" id="stage">
+          <img id="pageImage" class="page-img" src="" alt="Eğitim sayfası" draggable="false">
+          <button class="tap-zone left" id="stagePrev" type="button" aria-label="Önceki sayfa"></button>
+          <button class="tap-zone right" id="stageNext" type="button" aria-label="Sonraki sayfa"></button>
+        </div>
+
+        <div class="controls">
+          <button id="prevBtn" class="nav-btn" type="button">← Önceki</button>
+          <div id="pageInfo" class="page-pill">1 / 1</div>
+          <button id="nextBtn" class="nav-btn" type="button">Sonraki →</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="fullscreen-viewer" id="fullscreenViewer" aria-label="Tam ekran belge görüntüleyici">
+    <img id="fullscreenImage" class="fullscreen-img rotate-mobile" src="" alt="Tam ekran eğitim sayfası" draggable="false">
+    <button class="fullscreen-close" id="fullscreenClose" type="button" aria-label="Tam ekranı kapat">×</button>
+    <button class="fullscreen-tap-zone left" id="fullscreenPrev" type="button" aria-label="Önceki sayfa"></button>
+    <button class="fullscreen-tap-zone right" id="fullscreenNext" type="button" aria-label="Sonraki sayfa"></button>
+    <div class="fullscreen-nav">
+      <button id="fullscreenPrevBtn" class="fullscreen-nav-btn" type="button">← Önceki</button>
+      <div class="fullscreen-page-pill" id="fullscreenPageInfo">1 / 1</div>
+      <button id="fullscreenNextBtn" class="fullscreen-nav-btn" type="button">Sonraki →</button>
+    </div>
+  </div>
+
+  <div class="swipe-hint" id="swipeHint" aria-hidden="true">
+    <div class="swipe-hint-card">
+      <div class="swipe-hint-icons">
+        <span class="swipe-arrow left" aria-hidden="true"></span>
+        <span class="swipe-hand" aria-hidden="true">
+          <img src="assets/swipe-hand-user.png?v=34" alt="" draggable="false">
+        </span>
+        <span class="swipe-arrow right" aria-hidden="true"></span>
+      </div>
+      <p class="swipe-hint-text">Sayfa değiştirmek için sürükleyin</p>
+    </div>
+  </div>
+
+  <script>
+    const APP_VERSION = "auto-20260619-smart-preload-core-01";
+    let latestAssetVersion = APP_VERSION;
+
+    /*
+      KALICI OTOMATIK GUNCELLEME CEKIRDEGI - DOKUNMA
+      - Kullanıcıya verilen ana link değişmez.
+      - GitHub/Netlify üstündeki dosyalar güncellenince aynı link güncel sürümü alır.
+      - version.json normal güncelleme kontrolüdür.
+      - Bildirim sistemi ayrı çalışır: sadece notifications doluysa zil oynar.
+      - Yeni tasarım, giriş ekranı veya eğitim eklerken bu bloğu silme/değiştirme.
+    */
+    const UPDATE_CORE_STORAGE_KEY = "foodsoft-loaded-version-core-v1";
+
+    function withVersion(path) {
+      if (!path || path.startsWith("data:")) return path;
+      // KALICI HIZ CEKIRDEGI - DOKUNMA:
+      // Görseller her açılışta farklı Date.now ile çağrılmaz.
+      // Aynı version değeri boyunca tarayıcı cache kullanır; version.json değişince yeni dosyalar çekilir.
+      const cacheBuster = latestAssetVersion;
+      return path + (path.includes("?") ? "&" : "?") + "v=" + encodeURIComponent(cacheBuster);
+    }
+
+    function forceFreshAppReload(nextVersion) {
+      if (!nextVersion) return;
+      try {
+        const lastLoaded = sessionStorage.getItem(UPDATE_CORE_STORAGE_KEY);
+        if (lastLoaded === String(nextVersion)) return;
+        sessionStorage.setItem(UPDATE_CORE_STORAGE_KEY, String(nextVersion));
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("appv", String(nextVersion));
+        window.location.replace(url.toString());
+      } catch (e) {
+        try { window.location.reload(); } catch (err) {}
+      }
+    }
+
+    function clearOldBrowserCaches() {
+      try {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations()
+            .then(registrations => registrations.forEach(reg => reg.unregister()))
+            .catch(() => {});
+        }
+        if ("caches" in window) {
+          caches.keys()
+            .then(keys => keys.forEach(key => caches.delete(key)))
+            .catch(() => {});
+        }
+      } catch (e) {}
+    }
+
+    function setImageSource(imgElement, path, useVersion = true) {
+      if (!imgElement || !path) return;
+      imgElement.dataset.rawSrc = path;
+      imgElement.dataset.retryDone = "0";
+      imgElement.decoding = "async";
+      imgElement.src = useVersion ? withVersion(path) : path;
+    }
+
+    // KALICI AKILLI ON YUKLEME CEKIRDEGI - DOKUNMA:
+    // Tüm eğitim sayfalarını aynı anda yüklemez. Sadece mevcut sayfanın bir önceki ve bir sonraki görselini hazırlar.
+    // Bu sayede kalite bozulmadan sayfa geçişleri hızlanır, telefon gereksiz yorulmaz.
+    const SMART_PRELOAD_CACHE = new Map();
+    let smartPreloadTimer = null;
+
+    function getPreloadKey(path) {
+      return String(path || "") + "::" + String(latestAssetVersion || APP_VERSION);
+    }
+
+    function preloadTrainingImage(path) {
+      if (!path) return;
+      const key = getPreloadKey(path);
+      if (SMART_PRELOAD_CACHE.has(key)) return;
+
+      const img = new Image();
+      img.decoding = "async";
+      img.loading = "eager";
+      img.src = withVersion(path);
+      SMART_PRELOAD_CACHE.set(key, img);
+
+      // Belleği şişirmemek için cache'i küçük tut.
+      if (SMART_PRELOAD_CACHE.size > 8) {
+        const firstKey = SMART_PRELOAD_CACHE.keys().next().value;
+        SMART_PRELOAD_CACHE.delete(firstKey);
+      }
+    }
+
+    function smartPreloadNearbyPages() {
+      if (!activeTraining || !Array.isArray(activeTraining.pages)) return;
+
+      const pages = activeTraining.pages;
+      const currentIndex = currentPage - 1;
+      const nearby = [
+        pages[currentIndex - 1],
+        pages[currentIndex + 1]
+      ].filter(Boolean);
+
+      window.clearTimeout(smartPreloadTimer);
+      smartPreloadTimer = window.setTimeout(() => {
+        const run = () => nearby.forEach(preloadTrainingImage);
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(run, { timeout: 600 });
+        } else {
+          run();
+        }
+      }, 120);
+    }
+
+    function refreshVisibleImages() {
+      if (!activeTraining) return;
+      const currentSrc = activeTraining.pages[currentPage - 1];
+      setImageSource(pageImage, currentSrc);
+      setImageSource(fullscreenImage, currentSrc);
+      smartPreloadNearbyPages();
+    }
+
+    function applyVersionData(data) {
+      if (!data || typeof data !== "object") {
+        setNotificationIdle();
+        return;
+      }
+
+      if (data.version) {
+        const latestVersion = String(data.version);
+        if (latestVersion && latestVersion !== latestAssetVersion) {
+          latestAssetVersion = latestVersion;
+          SMART_PRELOAD_CACHE.clear();
+          refreshVisibleImages();
+          forceFreshAppReload(latestVersion);
+          return;
+        }
+      }
+
+      handleVersionNotification(data);
+    }
+
+    function fetchLatestVersionData() {
+      try {
+        fetch("version.json?t=" + Date.now(), { cache: "no-store" })
+          .then(response => response.ok ? response.json() : null)
+          .then(applyVersionData)
+          .catch(() => {
+            setNotificationIdle();
+          });
+      } catch (e) {
+        setNotificationIdle();
+      }
+    }
+
+    clearOldBrowserCaches();
+    fetchLatestVersionData();
+    window.setInterval(fetchLatestVersionData, 60000);
+
+    const trainings = [{'id': 'depo-sayimi', 'title': 'Depo Sayımı Oluşturma', 'subtitle': "Foodsoft'ta depo sayımı oluşturma rehberi", 'pages': ['trainings/depo-sayimi/page-1.png', 'trainings/depo-sayimi/page-2.png', 'trainings/depo-sayimi/page-3.png', 'trainings/depo-sayimi/page-4.png', 'trainings/depo-sayimi/page-5.png', 'trainings/depo-sayimi/page-6.png']}, {'id': 'talep-acma', 'title': 'Talep Açma', 'subtitle': "Foodsoft'ta talep açma işlemleri rehberi", 'pages': ['trainings/talep-acma/page-1.png', 'trainings/talep-acma/page-2.png', 'trainings/talep-acma/page-3.png', 'trainings/talep-acma/page-4.png', 'trainings/talep-acma/page-5.png']}, {'id': 'irsaliye-isleme', 'title': 'İrsaliye İşleme', 'subtitle': "Foodsoft'ta irsaliye işleme rehberi", 'pages': ['trainings/irsaliye-isleme/page-1.png', 'trainings/irsaliye-isleme/page-2.png', 'trainings/irsaliye-isleme/page-3.png', 'trainings/irsaliye-isleme/page-4.png', 'trainings/irsaliye-isleme/page-5.png', 'trainings/irsaliye-isleme/page-6.png', 'trainings/irsaliye-isleme/page-7.png']}];
+
+    const drawer = document.getElementById("drawer");
+    const overlay = document.getElementById("overlay");
+    const openMenu = document.getElementById("openMenu");
+    const closeMenu = document.getElementById("closeMenu");
+    const menuList = document.getElementById("menuList");
+    const home = document.getElementById("home");
+    const viewer = document.getElementById("viewer");
+    const backHome = document.getElementById("backHome");
+    const authScreen = document.getElementById("authScreen");
+    const authForm = document.getElementById("authForm");
+    const authUser = document.getElementById("authUser");
+    const authPass = document.getElementById("authPass");
+    const authError = document.getElementById("authError");
+    const authTogglePass = document.getElementById("authTogglePass");
+    const authSubmit = document.getElementById("authSubmit");
+
+    const titleEl = document.getElementById("trainingTitle");
+    const subtitleEl = document.getElementById("trainingSubtitle");
+    const pageImage = document.getElementById("pageImage");
+    const pageInfo = document.getElementById("pageInfo");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const stagePrev = document.getElementById("stagePrev");
+    const stageNext = document.getElementById("stageNext");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const stageFullscreenBtn = document.getElementById("stageFullscreenBtn");
+    const fullscreenViewer = document.getElementById("fullscreenViewer");
+    const fullscreenImage = document.getElementById("fullscreenImage");
+    const fullscreenClose = document.getElementById("fullscreenClose");
+    const fullscreenPrev = document.getElementById("fullscreenPrev");
+    const fullscreenNext = document.getElementById("fullscreenNext");
+    const fullscreenPageInfo = document.getElementById("fullscreenPageInfo");
+    const fullscreenPrevBtn = document.getElementById("fullscreenPrevBtn");
+    const fullscreenNextBtn = document.getElementById("fullscreenNextBtn");
+    const swipeHint = document.getElementById("swipeHint");
+    const notificationBell = document.getElementById("notificationBell");
+    const notificationPopover = document.getElementById("notificationPopover");
+    const notificationText = document.getElementById("notificationText");
+    const notificationDismiss = document.getElementById("notificationDismiss");
+    const NOTIFICATION_ACK_KEY = "foodsoft-seen-notification-ids-v1";
+    let hasUnreadUpdateNotification = false;
+    let currentUnreadNotifications = [];
+
+    let activeTraining = null;
+    let currentPage = 1;
+
+    function unlockDemoAuth() {
+      if (authError) authError.textContent = "";
+      document.body.classList.remove("auth-locked");
+      if (authScreen) {
+        authScreen.hidden = true;
+        authScreen.style.display = "none";
+        authScreen.setAttribute("aria-hidden", "true");
+      }
+      requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "auto" }));
+    }
+
+    const SUPABASE_CONFIG_KEY = "foodsoft_admin_supabase_config_v1";
+    const LOCAL_USERS_KEY = "foodsoft_local_users_v1";
+    let loginSupabaseClient = null;
+
+    function getSupabaseConfig() {
+      try { return JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "null"); }
+      catch (e) { return null; }
+    }
+
+    function getLoginSupabaseClient() {
+      if (loginSupabaseClient) return loginSupabaseClient;
+      const cfg = getSupabaseConfig();
+      if (!cfg || !cfg.url || !cfg.key || !window.supabase) return null;
+      loginSupabaseClient = window.supabase.createClient(cfg.url, cfg.key);
+      return loginSupabaseClient;
+    }
+
+    async function handleUserAuth(event) {
+      if (event) event.preventDefault();
+      if (authError) authError.textContent = "";
+      const username = authUser ? authUser.value.trim() : "";
+      const password = authPass ? authPass.value : "";
+      if (!username || !password) {
+        if (authError) authError.textContent = "Kullanıcı adı ve şifre giriniz.";
+        return;
+      }
+      const client = getLoginSupabaseClient();
+      if (authSubmit) {
+        authSubmit.disabled = true;
+        authSubmit.textContent = "Kontrol ediliyor...";
+      }
+      try {
+        if (client) {
+          const { data, error } = await client.rpc("app_login", { p_username: username, p_password: password });
+          if (error) throw error;
+          if (!Array.isArray(data) || data.length === 0) {
+            if (authError) authError.textContent = "Kullanıcı adı veya şifre hatalı.";
+            return;
+          }
+          unlockDemoAuth();
+          return;
+        }
+
+        const localUsers = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || "[]");
+        const localUser = Array.isArray(localUsers) ? localUsers.find(u =>
+          String(u.username) === String(username) &&
+          String(u.password) === String(password) &&
+          u.role !== "admin" &&
+          u.active === true
+        ) : null;
+        if (!localUser) {
+          if (authError) authError.textContent = "Kullanıcı adı veya şifre hatalı.";
+          return;
+        }
+        unlockDemoAuth();
+      } catch (err) {
+        if (authError) authError.textContent = "Giriş başarısız: " + (err.message || err);
+      } finally {
+        if (authSubmit) {
+          authSubmit.disabled = false;
+          authSubmit.textContent = "Giriş Yap";
+        }
+      }
+    }
+
+    if (authForm) {
+      authForm.addEventListener("submit", handleUserAuth);
+    }
+
+    if (authTogglePass && authPass) {
+      authTogglePass.addEventListener("click", () => {
+        const isHidden = authPass.type === "password";
+        authPass.type = isHidden ? "text" : "password";
+        authTogglePass.textContent = isHidden ? "🙈" : "👁";
+        authTogglePass.setAttribute("aria-label", isHidden ? "Şifreyi gizle" : "Şifreyi göster");
+        authPass.focus();
+      });
+    }
+
+    function getSeenNotificationIds() {
+      try {
+        const raw = localStorage.getItem(NOTIFICATION_ACK_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed.map(String) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveSeenNotificationIds(ids) {
+      try {
+        const uniqueIds = [...new Set((ids || []).map(String).filter(Boolean))];
+        localStorage.setItem(NOTIFICATION_ACK_KEY, JSON.stringify(uniqueIds));
+      } catch (e) {}
+    }
+
+    function normalizeNotifications(data) {
+      const list = data && Array.isArray(data.notifications) ? data.notifications : [];
+      return list
+        .map((item, index) => {
+          if (typeof item === "string") {
+            const message = item.trim();
+            return message ? { id: message, message } : null;
+          }
+          if (!item || typeof item !== "object") return null;
+          const message = String(item.message || item.title || "").trim();
+          if (!message) return null;
+          const id = String(item.id || message || ("notification-" + index)).trim();
+          return { id, message };
+        })
+        .filter(Boolean);
+    }
+
+    function setNotificationIdle() {
+      hasUnreadUpdateNotification = false;
+      currentUnreadNotifications = [];
+      if (notificationBell) notificationBell.classList.remove("has-notification");
+      if (notificationPopover) notificationPopover.hidden = true;
+    }
+
+    function setNotificationUpdate(notifications = []) {
+      currentUnreadNotifications = notifications;
+      hasUnreadUpdateNotification = notifications.length > 0;
+      if (!hasUnreadUpdateNotification) {
+        setNotificationIdle();
+        return;
+      }
+      const message = notifications.map(item => item.message).join("\n");
+      if (notificationText) notificationText.textContent = message;
+      if (notificationBell) notificationBell.classList.add("has-notification");
+    }
+
+    function initializeNotificationState() {
+      setNotificationIdle();
+    }
+
+    function handleVersionNotification(data) {
+      const notifications = normalizeNotifications(data);
+      if (!notifications.length) {
+        setNotificationIdle();
+        return;
+      }
+
+      const seenIds = getSeenNotificationIds();
+      const unread = notifications.filter(item => !seenIds.includes(String(item.id)));
+
+      if (unread.length) {
+        setNotificationUpdate(unread);
+      } else {
+        setNotificationIdle();
+      }
+    }
+
+    initializeNotificationState();
+
+    function openDrawer() {
+      drawer.classList.add("open");
+      overlay.classList.add("open");
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      overlay.classList.remove("open");
+    }
+
+    openMenu.addEventListener("click", openDrawer);
+    closeMenu.addEventListener("click", closeDrawer);
+    overlay.addEventListener("click", closeDrawer);
+    if (notificationBell) {
+      notificationBell.addEventListener("click", () => {
+        if (!hasUnreadUpdateNotification) return;
+        if (notificationPopover) notificationPopover.hidden = !notificationPopover.hidden;
+      });
+    }
+
+    if (notificationDismiss) {
+      notificationDismiss.addEventListener("click", () => {
+        const seenIds = getSeenNotificationIds();
+        const unreadIds = currentUnreadNotifications.map(item => item.id);
+        saveSeenNotificationIds([...seenIds, ...unreadIds]);
+        setNotificationIdle();
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!notificationPopover || notificationPopover.hidden) return;
+      const wrap = e.target.closest ? e.target.closest(".notification-wrap") : null;
+      if (!wrap) notificationPopover.hidden = true;
+    });
+
+    function renderMenu() {
+      menuList.innerHTML = "";
+      trainings.forEach((item, index) => {
+        const btn = document.createElement("button");
+        btn.className = "menu-item";
+        btn.type = "button";
+        btn.innerHTML = `<span class="menu-icon" aria-hidden="true">📘</span><span class="menu-copy"><span class="name">${item.title}</span></span><span class="menu-count">${item.pages.length} sf</span>`;
+        btn.addEventListener("click", () => selectTraining(item.id));
+        menuList.appendChild(btn);
+      });
+    }
+
+    function updateMenuActive() {
+      [...menuList.children].forEach((btn, index) => {
+        btn.classList.toggle("active", activeTraining && trainings[index].id === activeTraining.id);
+      });
+    }
+
+    function selectTraining(id) {
+      activeTraining = trainings.find(t => t.id === id);
+      SMART_PRELOAD_CACHE.clear();
+      currentPage = 1;
+      home.style.display = "none";
+      document.body.classList.remove("home-active");
+      viewer.classList.add("open");
+      titleEl.textContent = activeTraining.title;
+      subtitleEl.textContent = activeTraining.subtitle;
+      updatePage();
+      updateMenuActive();
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.clearTimeout(selectTraining.hintTimer);
+      selectTraining.hintTimer = window.setTimeout(() => {
+        showSwipeHint(false);
+      }, 180);
+    }
+
+    function updatePage(options = {}) {
+      if (!activeTraining) return;
+      /* V9: flicker kapatıldı */
+
+      const isFullscreenOpen = fullscreenViewer.classList.contains("open");
+
+      setTimeout(() => {
+        setImageSource(pageImage, activeTraining.pages[currentPage - 1]);
+        pageImage.alt = activeTraining.title + " - Sayfa " + currentPage;
+        pageInfo.textContent = currentPage + " / " + activeTraining.pages.length;
+        fullscreenPageInfo.textContent = currentPage + " / " + activeTraining.pages.length;
+        setImageSource(fullscreenImage, activeTraining.pages[currentPage - 1]);
+        fullscreenImage.alt = activeTraining.title + " - Sayfa " + currentPage;
+
+        if (isFullscreenOpen) {
+          fullscreenDragReset();
+        }
+
+        const isFirstPage = currentPage === 1;
+        const isLastPage = currentPage === activeTraining.pages.length;
+        prevBtn.disabled = isFirstPage;
+        nextBtn.disabled = isLastPage;
+        fullscreenPrevBtn.disabled = isFirstPage;
+        fullscreenNextBtn.disabled = isLastPage;
+
+        smartPreloadNearbyPages();
+      }, 70);
+    }
+
+    pageImage.addEventListener("load", () => {
+      /* V9: flicker kapatıldı */
+    });
+
+
+    function restoreImageOnError(event) {
+      const img = event.currentTarget;
+      const rawSrc = img && img.dataset ? img.dataset.rawSrc : "";
+      if (!img || !rawSrc) return;
+      if (img.dataset.retryDone === "1") return;
+      img.dataset.retryDone = "1";
+      img.src = rawSrc;
+    }
+
+    pageImage.addEventListener("error", restoreImageOnError);
+    fullscreenImage.addEventListener("error", restoreImageOnError);
+
+    function goPage(delta) {
+      if (!activeTraining) return;
+      const next = currentPage + delta;
+      if (next < 1 || next > activeTraining.pages.length) return;
+      currentPage = next;
+      updatePage();
+    }
+
+    prevBtn.addEventListener("click", () => goPage(-1));
+    nextBtn.addEventListener("click", () => goPage(1));
+    fullscreenPrevBtn.addEventListener("click", () => goPage(-1));
+    fullscreenNextBtn.addEventListener("click", () => goPage(1));
+
+    function showSwipeHint(isFullscreen = false) {
+      if (!swipeHint) return;
+      swipeHint.classList.remove("show", "fullscreen-mode");
+      if (isFullscreen) swipeHint.classList.add("fullscreen-mode");
+      void swipeHint.offsetWidth;
+      swipeHint.classList.add("show");
+      window.clearTimeout(showSwipeHint.timer);
+      showSwipeHint.timer = window.setTimeout(() => {
+        swipeHint.classList.remove("show", "fullscreen-mode");
+      }, 3300);
+    }
+
+    function getFullscreenElement() {
+      return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+    }
+
+    async function requestRealFullscreen() {
+      // Tüm sayfayı fullscreen yapıyoruz; böylece fullscreenViewer dışındaki ilk sürükleme ipucu da görünür kalır.
+      const el = document.documentElement;
+      try {
+        if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: "hide" });
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      } catch (e) {
+        // Bazı telefon tarayıcıları gerçek fullscreen izni vermeyebilir. Bu durumda sabit tam ekran katmanı kullanılır.
+      }
+    }
+
+    async function exitRealFullscreen() {
+      try {
+        if (document.exitFullscreen && document.fullscreenElement) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen && document.webkitFullscreenElement) document.webkitExitFullscreen();
+        else if (document.msExitFullscreen && document.msFullscreenElement) document.msExitFullscreen();
+      } catch (e) {}
+    }
+
+    function lockPageForPresentation() {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.body.style.height = "100%";
+      window.scrollTo(0, 1);
+    }
+
+    function unlockPageForPresentation() {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.body.style.height = "";
+    }
+
+    function updateFullscreenViewportHeight() {
+      const h = window.innerHeight || document.documentElement.clientHeight;
+      document.documentElement.style.setProperty("--real-vh", h + "px");
+    }
+
+    function openFullscreen() {
+      if (!activeTraining) return;
+      updateFullscreenViewportHeight();
+      fullscreenDragReset();
+      setImageSource(fullscreenImage, activeTraining.pages[currentPage - 1]);
+      fullscreenImage.alt = activeTraining.title + " - Sayfa " + currentPage;
+      fullscreenPageInfo.textContent = currentPage + " / " + activeTraining.pages.length;
+      fullscreenViewer.classList.add("open");
+      document.body.classList.add("fullscreen-locked");
+      lockPageForPresentation();
+      requestRealFullscreen();
+      showSwipeHint(true);
+    }
+
+    function closeFullscreen() {
+      fullscreenDragReset();
+      fullscreenViewer.classList.remove("open");
+      document.body.classList.remove("fullscreen-locked");
+      unlockPageForPresentation();
+      exitRealFullscreen();
+      if (swipeHint) swipeHint.classList.remove("show", "fullscreen-mode");
+      window.clearTimeout(showSwipeHint.timer);
+    }
+
+    document.addEventListener("fullscreenchange", () => {
+      if (!getFullscreenElement() && fullscreenViewer.classList.contains("open")) {
+        // Kullanıcı telefonun kendi geri/çıkış hareketiyle çıktıysa katmanı da kapat.
+        fullscreenViewer.classList.remove("open");
+        document.body.classList.remove("fullscreen-locked");
+        unlockPageForPresentation();
+      }
+    });
+    document.addEventListener("webkitfullscreenchange", () => {
+      if (!getFullscreenElement() && fullscreenViewer.classList.contains("open")) {
+        fullscreenViewer.classList.remove("open");
+        document.body.classList.remove("fullscreen-locked");
+        unlockPageForPresentation();
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (fullscreenViewer.classList.contains("open")) {
+        updateFullscreenViewportHeight();
+        fullscreenDragReset();
+      }
+    }, { passive: true });
+
+    window.addEventListener("orientationchange", () => {
+      if (fullscreenViewer.classList.contains("open")) {
+        window.setTimeout(() => {
+          updateFullscreenViewportHeight();
+          fullscreenDragReset();
+          refreshVisibleImages();
+        }, 250);
+      }
+    }, { passive: true });
+
+    fullscreenBtn.addEventListener("click", openFullscreen);
+    stageFullscreenBtn.addEventListener("click", openFullscreen);
+    fullscreenClose.addEventListener("click", closeFullscreen);
+
+    backHome.addEventListener("click", () => {
+      viewer.classList.remove("open");
+      home.style.display = "grid";
+      document.body.classList.add("home-active");
+      activeTraining = null;
+      updateMenuActive();
+      if (swipeHint) swipeHint.classList.remove("show", "fullscreen-mode");
+      window.clearTimeout(showSwipeHint.timer);
+      window.clearTimeout(selectTraining.hintTimer);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (fullscreenViewer.classList.contains("open")) closeFullscreen();
+        else closeDrawer();
+      }
+      if (e.key === "ArrowLeft") goPage(-1);
+      if (e.key === "ArrowRight") goPage(1);
+    });
+
+
+
+    function addSwipeNavigation(target, options = {}) {
+      const minDistance = options.minDistance ?? 42;
+      const lockThreshold = options.lockThreshold ?? 10;
+      const ratio = options.ratio ?? 1.15;
+      const onSwipeLeft = options.onSwipeLeft ?? (() => goPage(1));
+      const onSwipeRight = options.onSwipeRight ?? (() => goPage(-1));
+      const onDrag = options.onDrag || null;
+      const onReset = options.onReset || null;
+
+      const state = {
+        tracking: false,
+        pointerId: null,
+        startX: 0,
+        startY: 0,
+        lastX: 0,
+        lastY: 0,
+        axisLocked: null,
+        startTime: 0
+      };
+
+      function reset() {
+        state.tracking = false;
+        state.pointerId = null;
+        state.axisLocked = null;
+        if (onReset) onReset();
+      }
+
+      function begin(x, y, pointerId = null) {
+        state.tracking = true;
+        state.pointerId = pointerId;
+        state.startX = x;
+        state.startY = y;
+        state.lastX = x;
+        state.lastY = y;
+        state.axisLocked = null;
+        state.startTime = Date.now();
+      }
+
+      function move(x, y) {
+        if (!state.tracking) return false;
+        state.lastX = x;
+        state.lastY = y;
+
+        const diffX = x - state.startX;
+        const diffY = y - state.startY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
+
+        if (!state.axisLocked) {
+          if (absX < lockThreshold && absY < lockThreshold) return false;
+          state.axisLocked = absX > absY ? "x" : "y";
+        }
+
+        if (state.axisLocked === "y") return false;
+
+        if (onDrag) onDrag(diffX, diffY);
+        return true;
+      }
+
+      function finish(x = state.lastX, y = state.lastY) {
+        if (!state.tracking) return;
+
+        const diffX = x - state.startX;
+        const diffY = y - state.startY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
+        const elapsed = Date.now() - state.startTime;
+        const isStrongHorizontal = absX >= minDistance && absX > absY * ratio;
+        const isFastFlick = elapsed <= 320 && absX >= 24 && absX > absY * 1.05;
+
+        state.tracking = false;
+        state.pointerId = null;
+        state.axisLocked = null;
+
+        if (!(isStrongHorizontal || isFastFlick)) {
+          if (onReset) onReset();
+          return;
+        }
+
+        if (diffX < 0) onSwipeLeft();
+        else onSwipeRight();
+      }
+
+      target.addEventListener("touchstart", (e) => {
+        if (!e.touches || e.touches.length !== 1) return;
+        const t = e.touches[0];
+        begin(t.clientX, t.clientY, "touch");
+      }, { passive: true });
+
+      target.addEventListener("touchmove", (e) => {
+        if (!state.tracking || !e.touches || e.touches.length !== 1) return;
+        const t = e.touches[0];
+        const isHorizontal = move(t.clientX, t.clientY);
+        if (isHorizontal) e.preventDefault();
+      }, { passive: false });
+
+      target.addEventListener("touchend", (e) => {
+        if (!e.changedTouches || !e.changedTouches.length) return;
+        const t = e.changedTouches[0];
+        finish(t.clientX, t.clientY);
+      }, { passive: true });
+
+      target.addEventListener("touchcancel", reset, { passive: true });
+
+      target.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        begin(e.clientX, e.clientY, e.pointerId);
+      });
+
+      target.addEventListener("pointermove", (e) => {
+        if (e.pointerType === "touch") return;
+        if (!state.tracking || (state.pointerId !== null && e.pointerId !== state.pointerId)) return;
+        const isHorizontal = move(e.clientX, e.clientY);
+        if (isHorizontal) e.preventDefault();
+      });
+
+      target.addEventListener("pointerup", (e) => {
+        if (e.pointerType === "touch") return;
+        if (state.pointerId !== null && e.pointerId !== state.pointerId) return;
+        finish(e.clientX, e.clientY);
+      });
+
+      target.addEventListener("pointercancel", reset);
+      target.addEventListener("mouseleave", () => {
+        if (state.tracking && state.pointerId === null) reset();
+      });
+    }
+
+    function fullscreenDrag(diffX, diffY) {
+      // V36: sayfa geçerken sallanmayı engellemek için canlı sürükleme animasyonu kapatıldı.
+      // Kaydırma algısı çalışır, fakat görsel yerinden oynamaz.
+      return;
+    }
+
+    function fullscreenDragReset() {
+      fullscreenImage.classList.remove("swiping");
+      fullscreenImage.style.transform = "";
+      fullscreenImage.style.opacity = "";
+    }
+
+    function fullscreenNextPage() {
+      fullscreenDragReset();
+      goPage(1);
+    }
+
+    function fullscreenPrevPage() {
+      fullscreenDragReset();
+      goPage(-1);
+    }
+
+    function addVerticalSwipeNavigation(target) {
+      let startX = 0;
+      let startY = 0;
+      let lastX = 0;
+      let lastY = 0;
+      let tracking = false;
+      let axisLocked = null;
+      let startTime = 0;
+
+      function reset() {
+        tracking = false;
+        axisLocked = null;
+        fullscreenDragReset();
+      }
+
+      function begin(x, y) {
+        startX = x;
+        startY = y;
+        lastX = x;
+        lastY = y;
+        tracking = true;
+        axisLocked = null;
+        startTime = Date.now();
+      }
+
+      function move(x, y) {
+        if (!tracking) return false;
+
+        lastX = x;
+        lastY = y;
+
+        const diffX = x - startX;
+        const diffY = y - startY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
+
+        if (!axisLocked) {
+          if (absX < 8 && absY < 8) return false;
+          axisLocked = absY > absX ? "y" : "x";
+        }
+
+        if (axisLocked === "x") return false;
+
+        fullscreenDrag(diffX, diffY);
+        return true;
+      }
+
+      function finish(x = lastX, y = lastY) {
+        if (!tracking) return;
+
+        const diffX = x - startX;
+        const diffY = y - startY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
+        const elapsed = Date.now() - startTime;
+
+        tracking = false;
+        axisLocked = null;
+
+        const isStrongVertical = absY >= 36 && absY > absX * 1.08;
+        const isFastFlick = elapsed <= 320 && absY >= 24 && absY > absX * 1.05;
+
+        if (!(isStrongVertical || isFastFlick)) {
+          fullscreenDragReset();
+          return;
+        }
+
+        // Yukarı sürükle -> sonraki sayfa, aşağı sürükle -> önceki sayfa
+        if (diffY < 0) fullscreenNextPage();
+        else fullscreenPrevPage();
+      }
+
+      target.addEventListener("touchstart", (e) => {
+        if (!e.touches || e.touches.length !== 1) return;
+        const t = e.touches[0];
+        begin(t.clientX, t.clientY);
+      }, { passive: true });
+
+      target.addEventListener("touchmove", (e) => {
+        if (!tracking || !e.touches || e.touches.length !== 1) return;
+        const t = e.touches[0];
+        const isVertical = move(t.clientX, t.clientY);
+        if (isVertical) e.preventDefault();
+      }, { passive: false });
+
+      target.addEventListener("touchend", (e) => {
+        if (!e.changedTouches || !e.changedTouches.length) return;
+        const t = e.changedTouches[0];
+        finish(t.clientX, t.clientY);
+      }, { passive: true });
+
+      target.addEventListener("touchcancel", reset, { passive: true });
+
+      target.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        begin(e.clientX, e.clientY);
+      });
+
+      target.addEventListener("pointermove", (e) => {
+        if (e.pointerType === "touch") return;
+        const isVertical = move(e.clientX, e.clientY);
+        if (isVertical) e.preventDefault();
+      });
+
+      target.addEventListener("pointerup", (e) => {
+        if (e.pointerType === "touch") return;
+        finish(e.clientX, e.clientY);
+      });
+
+      target.addEventListener("pointercancel", reset);
+      target.addEventListener("mouseleave", () => {
+        if (tracking) reset();
+      });
+    }
+
+    addSwipeNavigation(document.getElementById("stage"));
+    addVerticalSwipeNavigation(fullscreenViewer);
+
+    renderMenu();
+  </script>
+</body>
+</html>
